@@ -5,9 +5,12 @@ class PlayersController < ApplicationController
   end
 
   def create
-    player = Player.create(player_params)
-    ActionCable.server.broadcast "room_#{player.room_id}", { title: 'New Player', body: player }
-    render json: player, status: 201
+    player = Player.new(player_params)
+    if player.save
+      log_in(player.id)
+      ActionCable.server.broadcast "room_#{player.room_id}", { title: 'New Player', body: player }
+      render json: player, status: 201
+    end
   end
 
   private
